@@ -4,6 +4,7 @@ const { ObjectId } = require("mongodb");
 
 // Init app & middleware
 const app = express();
+app.use(express.json());
 
 // DB connection
 let db;
@@ -46,7 +47,35 @@ app.get("/books/:id", (req, res) => {
       .catch((err) => {
         res.status(500).json({ error: "error" });
       });
-  }else{
-    res.status(500).json({error:"error not valid"})
+  } else {
+    res.status(500).json({ error: "error not valid" });
   }
 });
+
+app.post("/books", (req, res) => {
+  const book = req.body;
+
+  db.collection("books")
+    .insertOne(book)
+    .then((result) => {
+      res.status(201).json(result);
+    })
+    .catch((err) => {
+      res.status(500).json({ error: "error not add book" });
+    });
+});
+
+app.delete('/books/:id', (req,res) => {
+  if (ObjectId.isValid(req.params.id)) {
+    db.collection("books")
+      .deleteOne({ _id: new ObjectId(req.params.id) })
+      .then((result) => {
+        res.status(200).json(result);
+      })
+      .catch((err) => {
+        res.status(500).json({ error: "error not delete" });
+      });
+  } else {
+    res.status(500).json({ error: "error not valid" });
+  }
+})
