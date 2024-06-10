@@ -7,11 +7,11 @@ module.exports = {
     MongoClient.connect("mongodb://localhost:27017/booksStore")
       .then((client) => {
         dbConnection = client.db();
-        return cb()
+        return cb();
       })
       .catch((err) => {
-        console.log(err);
-        return cb(err)
+        console.log("Failed to connect to the database:", err);
+        return cb(err);
       });
   },
   getDb: () => dbConnection,
