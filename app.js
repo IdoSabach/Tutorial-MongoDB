@@ -22,11 +22,18 @@ connectToDb((err) => {
 
 // Routes
 app.get("/books", (req, res) => {
+  // current page
+  const page = req.query.p || 0
+  const booksPerPage = 3 
+
+  let books = [];
   db.collection("books")
     .find()
     .sort({ author: 1 })
-    .toArray()
-    .then((books) => {
+    .skip(page * booksPerPage)
+    .limit(booksPerPage)
+    .forEach((book) => books.push(book))
+    .then(() => {
       res.status(200).json(books);
     })
     .catch((err) => {
@@ -65,7 +72,7 @@ app.post("/books", (req, res) => {
     });
 });
 
-app.delete('/books/:id', (req,res) => {
+app.delete("/books/:id", (req, res) => {
   if (ObjectId.isValid(req.params.id)) {
     db.collection("books")
       .deleteOne({ _id: new ObjectId(req.params.id) })
@@ -78,14 +85,13 @@ app.delete('/books/:id', (req,res) => {
   } else {
     res.status(500).json({ error: "error not valid" });
   }
-})
+});
 
-
-app.patch('/books/:id', (req,res) => {
-  const updates = req.body
+app.patch("/books/:id", (req, res) => {
+  const updates = req.body;
   if (ObjectId.isValid(req.params.id)) {
     db.collection("books")
-      .updateOne({ _id: new ObjectId(req.params.id) }, {$set:updates})
+      .updateOne({ _id: new ObjectId(req.params.id) }, { $set: updates })
       .then((result) => {
         res.status(200).json(result);
       })
@@ -95,4 +101,4 @@ app.patch('/books/:id', (req,res) => {
   } else {
     res.status(500).json({ error: "error not valid" });
   }
-})
+});
